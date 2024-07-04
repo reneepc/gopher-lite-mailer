@@ -1,0 +1,35 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #e9ecef;
+  margin: 0;
+  padding: 20px;
+}
+.email-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #dddddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.email-header {
+  text-align: center;
+  padding-bottom: 20px;
+}
+.email-body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.email-footer {
+  text-align: center;
+  padding-top: 20px;
+  font-size: 14px;
+  color: #777777;
+}
+.signature {
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
