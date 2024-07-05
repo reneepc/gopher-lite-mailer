@@ -1,30 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Confirmação de Participação no Evento</title>
     <style>
-        {{.CSS}}
+       {{.CSS}}
     </style>
-</head>
-<body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  </head>
+  <body>
     <div class="email-container">
-        <div class="email-header">
-            <h1>Confirmação de Participação no Evento</h1>
+      <div class="email-header">
+        <h1>Confirmação de Participação no Evento</h1>
+      </div>
+      <div class="email-body">
+        <p>Olá {{.Data.Name}},</p>
+        <p>Sua participação no {{.Data.Event}} está confirmada. 🎉</p>
+        <p>
+          Estamos ansiosos para te ver nesse evento incrível. Se tiver alguma
+          dúvida ou precisar de mais informações, é só avisar.
+        </p>
+        <br />
+        <footer>
+          Caso não possa comparecer, por favor, responda esse email cancelando
+          sua inscrição para que outra pessoa possa participar.
+        </footer>
+        <br />
+        <p>Até lá!</p>
+      </div>
+      <div class="email-footer">
+        <img src="{{.Signature}}" alt="Golang SP" class="signature" />
+        <div class="social-icons">
+            <a href="https://www.instagram.com/golang_sp/" target="_blank">
+                <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram">
+            </a>
+            <a href="https://www.meetup.com/pt-BR/golangbr/" target="_blank">
+                <img src="https://img.icons8.com/windows/64/FA5252/meetup.png" alt="Meetup">
+            </a>
         </div>
-        <div class="email-body">
-            <p>Olá {{.Data.Name}},</p>
-            <p>Sua participação no {{.Data.Event}} está confirmada. 🎉</p>
-            <p>Estamos ansiosos para te ver nesse evento incrível. Se tiver alguma dúvida ou precisar de mais informações, é só avisar.</p>
-            <br>
-            <footer> Caso não possa comparecer, por favor, responda esse email cancelando sua inscrição para que outra pessoa possa participar.</footer>
-            <br>
-            <p>Até lá!</p>
-        </div>
-        <div class="email-footer">
-            <img src="{{.Signature}}" alt="Golang SP" class="signature" />
         </div>
     </div>
-</body>
+  </body>
 </html>

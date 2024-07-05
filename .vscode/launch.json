@@ -17,7 +17,6 @@
           "buildFlags": "",
           "preLaunchTask": "",
           "postDebugTask": "",
-          "showLog": true
       }
   ]
 }

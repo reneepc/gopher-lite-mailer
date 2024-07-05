@@ -33,3 +33,11 @@ body {
   display: block;
   margin: 0 auto;
 }
+.social-icons {
+  margin-top: 10px;
+}
+.social-icons img {
+  width: 32px;
+  height: 32px;
+  margin: 0 10px;
+}

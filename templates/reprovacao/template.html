@@ -1,28 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Não foi possível adicionar ao Evento</title>
     <style>
-        {{.CSS}}
+       {{.CSS}}
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="email-container">
-        <div class="email-header">
-            <h1>Não foi possível adicionar ao Evento</h1>
+      <div class="email-header">
+        <h1>Não foi possível adicionar ao Evento</h1>
+      </div>
+      <div class="email-body">
+        <p>Olá {{.Data.Name}},</p>
+        <p>
+          Poxa, infelizmente não conseguimos confirmar sua participação no
+          {{.Data.Event}} desta vez. 😔
+        </p>
+        <p>
+          Mas não desanima! Temos muitos outros eventos dos quais você pode
+          participar. Fique de olho nas nossas redes sociais para não perder
+          nenhuma novidade.
+        </p>
+        <br />
+        <p>Um abraço.</p>
+      </div>
+      <div class="email-footer">
+        <img src="{{.Signature}}" alt="Golang SP" class="signature" />
+        <div class="social-icons">
+            <a href="https://www.instagram.com/golang_sp/" target="_blank">
+                <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram">
+            </a>
+            <a href="https://www.meetup.com/pt-BR/golangbr/" target="_blank">
+                <img src="https://img.icons8.com/windows/64/FA5252/meetup.png" alt="Meetup">
+            </a>
         </div>
-        <div class="email-body">
-            <p>Olá {{.Data.Name}},</p>
-            <p>Poxa, infelizmente não conseguimos confirmar sua participação no {{.Data.Event}} desta vez. 😔</p>
-            <p>Mas não desanima! Temos muitos outros eventos dos quais você pode participar. Fique de olho nas nossas redes sociais para não perder nenhuma novidade.</p>
-            <br>
-            <p>Um abraço.</p>
-        </div>
-        <div class="email-footer">
-            <img src="{{.Signature}}" alt="Golang SP" class="signature" />
-        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
