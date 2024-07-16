@@ -15,19 +15,30 @@
         <h1>Confirmação de Participação no Evento</h1>
       </div>
       <div class="email-body">
-        <p>Olá {{.Data.Name}},</p>
-        <p>Sua participação no {{.Data.Event}} está confirmada. 🎉</p>
-        <p>
-          Estamos ansiosos para te ver nesse evento incrível. Se tiver alguma
-          dúvida ou precisar de mais informações, é só avisar.
-        </p>
-        <br />
-        <footer>
-          Caso não possa comparecer, por favor, responda esse email cancelando
-          sua inscrição para que outra pessoa possa participar.
-        </footer>
-        <br />
-        <p>Até lá!</p>
+        <p>Olá {{ .Data.Nome }}.</p>
+
+        <p>Sua participação no <strong>Workshop de Golang para iniciantes</strong> no dia <strong>06 de agosto</strong> está confirmada! 🎉</p>
+
+        <p>Estamos ansiosos para te ver nesse evento incrível. Então vamos aos avisos:</p>
+
+        <ul>
+            <li><strong>Formato:</strong> Presencial</li>
+            <li><strong>Horário:</strong> 19:00 às 22:00</li>
+            <li><strong>Local:</strong> R. Jaceru, 225 - Vila Gertrudes, São Paulo - SP, 04705-000</li>
+        </ul>
+
+        <p><strong>O que você precisa levar:</strong></p>
+        <ol>
+            <li>Seu notebook</li>
+            <li>Instalar a linguagem Go <a href="https://go.dev/" target="_blank">aqui</a></li>
+            <li>Ter um editor de código instalado (sugerimos o <a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a>)</li>
+        </ol>
+
+        <p>Qualquer dúvida, responda este e-mail.</p>
+
+        <p><strong>Importante: Acesse o <a href="http://aka.ms/WorkshopGolang" target="_blank">link de inscrição</a> para confirmar sua participação. Não envie este link para outras pessoas.</strong></p>
+
+        <p>Nos vemos lá!</p>
       </div>
       <div class="email-footer">
         <img src="{{.Signature}}" alt="Golang SP" class="signature" />

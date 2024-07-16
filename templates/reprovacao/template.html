@@ -10,34 +10,28 @@
   </head>
   <body>
     <div class="email-container">
-      <div class="email-header">
-        <h1>Não foi possível adicionar ao Evento</h1>
-      </div>
-      <div class="email-body">
-        <p>Olá {{.Data.Name}},</p>
-        <p>
-          Poxa, infelizmente não conseguimos confirmar sua participação no
-          {{.Data.Event}} desta vez. 😔
-        </p>
-        <p>
-          Mas não desanima! Temos muitos outros eventos dos quais você pode
-          participar. Fique de olho nas nossas redes sociais para não perder
-          nenhuma novidade.
-        </p>
-        <br />
-        <p>Um abraço.</p>
-      </div>
-      <div class="email-footer">
-        <img src="{{.Signature}}" alt="Golang SP" class="signature" />
-        <div class="social-icons">
-            <a href="https://www.instagram.com/golang_sp/" target="_blank">
-                <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram">
-            </a>
-            <a href="https://www.meetup.com/pt-BR/golangbr/" target="_blank">
-                <img src="https://img.icons8.com/windows/64/FA5252/meetup.png" alt="Meetup">
-            </a>
+        <div class="email-header">
+            <h1>Agradecemos sua inscrição no Workshop de Go da Golang SP!</h1>
         </div>
-      </div>
+        <div class="email-body">
+            <p>Olá, {{ .Data.Nome }}.</p>
+
+            <p>Que bom que você se inscreveu no nosso workshop de Go para iniciantes! Ficamos felizes em ver o seu interesse em aprender essa linguagem.</p>
+            <p>Contudo, como as vagas eram limitadas, tivemos que fazer uma seleção. Infelizmente, <strong>você não foi selecionado(a) para essa edição.</strong></p>
+
+            <p>Mas não desanime! Continue participando da nossa comunidade, além de workshops realizamos eventos presenciais e online pelo YouTube. Também fique ligado(a) para os próximos workshops através das nossas redes.</p>
+        </div>
+        <div class="email-footer">
+            <img src="{{.Signature}}" alt="Golang SP" class="signature" />
+            <div class="social-icons">
+                <a href="https://www.instagram.com/golang_sp/" target="_blank">
+                    <img src="https://img.icons8.com/color/48/000000/instagram-new.png" alt="Instagram">
+                </a>
+                <a href="https://www.meetup.com/pt-BR/golangbr/" target="_blank">
+                    <img src="https://img.icons8.com/windows/64/FA5252/meetup.png" alt="Meetup">
+                </a>
+            </div>
+        </div>
     </div>
   </body>
 </html>

@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
       {
-          "name": "Launch Go Program",
+          "name": "Aprovados",
           "type": "go",
           "request": "launch",
           "mode": "auto",
@@ -17,6 +17,23 @@
           "buildFlags": "",
           "preLaunchTask": "",
           "postDebugTask": "",
-      }
+      },
+    {
+        "name": "Reprovados",
+        "type": "go",
+        "request": "launch",
+        "mode": "auto",
+        "program": "${workspaceFolder}",
+        "args": [
+            "-dir=templates/reprovacao",
+            "-subject=Agradecemos sua inscrição no Workshop de Go da Golang SP!",
+            "${env:GMAIL}",
+            "${env:APP_PASS}",
+        ],
+        "env": {},
+        "buildFlags": "",
+        "preLaunchTask": "",
+        "postDebugTask": "",
+    },
   ]
 }
