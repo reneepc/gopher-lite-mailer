@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	"log/slog"
+	"math/rand/v2"
 	"os"
 	"path"
 	"sync"
+	"time"
 
 	"github.com/reneepc/gopher-lite-mailer/mailer"
 	"github.com/reneepc/gopher-lite-mailer/parser"
@@ -55,6 +57,7 @@ func sendEmails(mailer mailer.Mailer, subject string, template mailer.EmailTempl
 	for _, mailRecord := range records {
 		wg.Add(1)
 		go func(record parser.MailRecord) {
+			time.Sleep(time.Duration(rand.IntN(30)) * time.Second)
 			defer wg.Done()
 
 			body, err := template.Execute(record.Data)
