@@ -1,9 +1,11 @@
-package mailer
+package mailer_test
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/reneepc/gopher-lite-mailer/mailer"
 )
 
 func createTempFile(t *testing.T, dir, filename, content string) string {
@@ -32,11 +34,13 @@ func TestNewEmailTemplate(t *testing.T) {
 	validBodyContent := "<p>Hello, {{.Data.Name}}!</p>"
 	validCssContent := "body { color: red; }"
 
+	// Create the required directories and files
 	createTempFile(t, tmpDir, "header.html", validHeaderContent)
 	createTempFile(t, tmpDir, "footer.html", validFooterContent)
 	createTempFile(t, filepath.Join(tmpDir, "bodies"), "body1.html", validBodyContent)
 	createTempFile(t, tmpDir, "styles.css", validCssContent)
 
+	// Create an invalid body file for testing
 	invalidBodyContent := "{{.Invalid"
 	createTempFile(t, filepath.Join(tmpDir, "bodies"), "body_invalid.html", invalidBodyContent)
 
@@ -47,22 +51,23 @@ func TestNewEmailTemplate(t *testing.T) {
 		beforeTest    func()
 	}{
 		"Valid Files": {
-			bodyFile:      "bodies/body1.html",
+			bodyFile:      "body1.html",
 			signatureLink: "http://golang.samba.br",
 			expectError:   false,
 			beforeTest:    func() {},
 		},
 		"Invalid Body File": {
-			bodyFile:      "bodies/body_invalid.html",
+			bodyFile:      "body_invalid.html",
 			signatureLink: "http://golang.samba.br",
 			expectError:   true,
 			beforeTest:    func() {},
 		},
 		"Missing CSS File": {
-			bodyFile:      "bodies/body1.html",
+			bodyFile:      "body1.html",
 			signatureLink: "http://golang.samba.br",
-			expectError:   false,
+			expectError:   false, // Should not fail completely, only log a warning
 			beforeTest: func() {
+				// Remove the CSS file for this test case
 				err := os.Remove(filepath.Join(tmpDir, "styles.css"))
 				if err != nil {
 					t.Fatalf("Failed to remove styles.css: %v", err)
@@ -75,7 +80,7 @@ func TestNewEmailTemplate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			tt.beforeTest()
 
-			_, err := NewEmailTemplate(
+			_, err := mailer.NewEmailTemplate(
 				tmpDir,
 				tt.bodyFile,
 				tt.signatureLink,
@@ -170,11 +175,10 @@ func TestEmailTemplate_Execute(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			tmpDir := t.TempDir()
 			bodyDir := filepath.Join(tmpDir, "bodies")
-			os.Mkdir(bodyDir, 0755)
 
 			tt.setupFunc(tmpDir, bodyDir)
 
-			emailTemplate, err := NewEmailTemplate(tmpDir, "bodies/body1.html", "http://golang.samba.br")
+			emailTemplate, err := mailer.NewEmailTemplate(tmpDir, "body1.html", "http://golang.samba.br")
 			if err != nil && !tt.expectError {
 				t.Fatalf("Failed to create EmailTemplate: %v", err)
 			}
