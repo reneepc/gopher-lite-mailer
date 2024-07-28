@@ -131,7 +131,6 @@ func corruptFileForReadAll(t *testing.T, tmpFilePath string) {
 	if err != nil {
 		t.Fatalf("Failed to open file for corruption: %v", err)
 	}
-
 	file.WriteString("Email,Name\n\"rene.epcrdz@gmail.com\"\"Renê Cardozo\n")
 	file.Close()
 }

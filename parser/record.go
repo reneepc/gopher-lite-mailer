@@ -30,10 +30,18 @@ func ParseRecords(path string) ([]MailRecord, error) {
 	}
 
 	headers := rows[0]
-	records := make([]MailRecord, 0, len(rows)-1)
+	emailIndex := findEmailIndex(headers)
+	if emailIndex == -1 {
+		return nil, fmt.Errorf("no email column found in header")
+	}
+
+	var records []MailRecord
 	for _, row := range rows[1:] {
+		if emailIndex >= len(row) {
+			return nil, fmt.Errorf("email column index out of range for row: %v", row)
+		}
 		record := MailRecord{
-			Email: row[0],
+			Email: row[emailIndex],
 			Data:  make(map[string]string),
 		}
 		for i, value := range row {
@@ -43,4 +51,13 @@ func ParseRecords(path string) ([]MailRecord, error) {
 	}
 
 	return records, nil
+}
+
+func findEmailIndex(headers []string) int {
+	for i, header := range headers {
+		if strings.ToLower(header) == "email" {
+			return i
+		}
+	}
+	return -1
 }
