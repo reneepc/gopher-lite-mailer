@@ -3,21 +3,18 @@ package main
 import (
 	"flag"
 	"log/slog"
-	"math/rand/v2"
 	"os"
 	"path"
 	"sync"
-	"time"
 
 	"github.com/reneepc/gopher-lite-mailer/mailer"
 	"github.com/reneepc/gopher-lite-mailer/parser"
 )
 
 func main() {
-	templateDir := flag.String("dir", "templates", "Directory containing the template and data files")
-	templateFile := flag.String("template", "template.html", "Template file to use")
-	dataFile := flag.String("data", "data.csv", "Data file to use")
-	cssFile := flag.String("css", "assets/styles.css", "CSS file to use for styling the email body")
+	templateSubDir := flag.String("dir", "standard", "Subdirectory containing the template files")
+	bodyFile := flag.String("body", "workshop-confirmation.html", "Body template file to use")
+	dataFile := flag.String("data", "data.csv", "Data file to use (should be in the data subdirectory of the template directory)")
 	signatureLink := flag.String("signature", "https://golang.sampa.br/img/golangsp01.png", "Signature link to use for the email body")
 	subject := flag.String("subject", "", "Subject of the email")
 
@@ -34,21 +31,23 @@ func main() {
 	args := flag.Args()
 	email, password := args[0], args[1]
 
-	templateContent, err := mailer.NewEmailTemplate(*templateDir, *templateFile, *cssFile, *signatureLink)
+	templateDir := path.Join("templates", *templateSubDir)
+	templateContent, err := mailer.NewEmailTemplate(templateDir, *bodyFile, *signatureLink)
 	if err != nil {
 		slog.Error("could not create email template: %v", slog.Any("error", err))
 		return
 	}
 
-	mailContent, err := parser.ParseRecords(path.Join(*templateDir, *dataFile))
+	dataFilePath := path.Join(templateDir, "data", *dataFile)
+	mailContent, err := parser.ParseRecords(dataFilePath)
 	if err != nil {
 		slog.Error("could not parse CSV file: %v", slog.Any("error", err))
 		return
 	}
 
-	mailer := mailer.NewGMailMailerBuilder(email, password).Build()
+	emailMailer := mailer.NewGMailMailerBuilder(email, password).Build()
 
-	sendEmails(mailer, *subject, templateContent, mailContent)
+	sendEmails(emailMailer, *subject, templateContent, mailContent)
 }
 
 func sendEmails(mailer mailer.Mailer, subject string, template mailer.EmailTemplate, records []parser.MailRecord) {
@@ -57,7 +56,7 @@ func sendEmails(mailer mailer.Mailer, subject string, template mailer.EmailTempl
 	for _, mailRecord := range records {
 		wg.Add(1)
 		go func(record parser.MailRecord) {
-			time.Sleep(time.Duration(rand.IntN(30)) * time.Second)
+			// time.Sleep(time.Duration(rand.IntN(30)) * time.Second)
 			defer wg.Done()
 
 			body, err := template.Execute(record.Data)

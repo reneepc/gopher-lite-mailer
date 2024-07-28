@@ -6,99 +6,185 @@ import (
 	"testing"
 )
 
-func createTempFile(t *testing.T, dir, pattern, content string) string {
+func createTempFile(t *testing.T, dir, filename, content string) string {
 	t.Helper()
-	tmpfile, err := os.CreateTemp(dir, pattern)
+
+	// Ensure the directory exists
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatalf("Failed to create directory: %v", err)
+	}
+
+	filePath := filepath.Join(dir, filename)
+	err := os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
-		t.Fatalf("Failed to create temporary file: %v", err)
+		t.Fatalf("Failed to create temp file: %v", err)
 	}
 
-	if _, err := tmpfile.Write([]byte(content)); err != nil {
-		tmpfile.Close()
-		t.Fatalf("Failed to write content to temporary file: %v", err)
-	}
-	if err := tmpfile.Close(); err != nil {
-		t.Fatalf("Failed to close temporary file: %v", err)
-	}
-
-	return tmpfile.Name()
+	return filePath
 }
 
 func TestNewEmailTemplate(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	validTemplateContent := "Hello, {{.Data.Name}}!"
-	validCSSContent := "body { color: red; }"
+	// Create valid template files
+	validHeaderContent := "<div class='header'>Header</div>"
+	validFooterContent := "<div class='footer'>Footer</div>"
+	validBodyContent := "<p>Hello, {{.Data.Name}}!</p>"
+	validCssContent := "body { color: red; }"
 
-	validTemplateFile := createTempFile(t, tmpDir, "template-*.html", validTemplateContent)
-	validCSSFile := createTempFile(t, tmpDir, "styles-*.css", validCSSContent)
-	invalidTemplateFile := createTempFile(t, tmpDir, "template-*.html", "{{.Invalid")
+	createTempFile(t, tmpDir, "header.html", validHeaderContent)
+	createTempFile(t, tmpDir, "footer.html", validFooterContent)
+	createTempFile(t, filepath.Join(tmpDir, "bodies"), "body1.html", validBodyContent)
+	createTempFile(t, tmpDir, "styles.css", validCssContent)
+
+	invalidBodyContent := "{{.Invalid"
+	createTempFile(t, filepath.Join(tmpDir, "bodies"), "body_invalid.html", invalidBodyContent)
 
 	tests := map[string]struct {
-		templateFile  string
-		cssFile       string
+		bodyFile      string
 		signatureLink string
 		expectError   bool
+		beforeTest    func()
 	}{
 		"Valid Files": {
-			validTemplateFile,
-			validCSSFile,
-			"http://golang.samba.br",
-			false,
+			bodyFile:      "bodies/body1.html",
+			signatureLink: "http://golang.samba.br",
+			expectError:   false,
+			beforeTest:    func() {},
 		},
-		"Invalid Template File": {
-			invalidTemplateFile,
-			validCSSFile,
-			"http://golang.samba.br",
-			true,
+		"Invalid Body File": {
+			bodyFile:      "bodies/body_invalid.html",
+			signatureLink: "http://golang.samba.br",
+			expectError:   true,
+			beforeTest:    func() {},
 		},
-		"Invalid CSS File": {
-			validTemplateFile,
-			filepath.Join(tmpDir, "nonexistent.css"),
-			"http://golang.samba.br",
-			false,
+		"Missing CSS File": {
+			bodyFile:      "bodies/body1.html",
+			signatureLink: "http://golang.samba.br",
+			expectError:   false,
+			beforeTest: func() {
+				err := os.Remove(filepath.Join(tmpDir, "styles.css"))
+				if err != nil {
+					t.Fatalf("Failed to remove styles.css: %v", err)
+				}
+			},
 		},
 	}
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			_, err := NewEmailTemplate(filepath.Dir(tt.templateFile), filepath.Base(tt.templateFile), tt.cssFile, tt.signatureLink)
+			tt.beforeTest()
+
+			_, err := NewEmailTemplate(
+				tmpDir,
+				tt.bodyFile,
+				tt.signatureLink,
+			)
 			if err != nil && !tt.expectError {
 				t.Errorf("NewEmailTemplate() error = %v, expectError %v", err, tt.expectError)
+			}
+			if err == nil && tt.expectError {
+				t.Errorf("Expected error but got none")
 			}
 		})
 	}
 }
 
 func TestEmailTemplate_Execute(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	validTemplateContent := "Hello, {{.Data.Name}}!"
-	validCSSContent := "body { color: red; }"
-
-	validTemplateFile := createTempFile(t, tmpDir, "template-*.html", validTemplateContent)
-	validCSSFile := createTempFile(t, tmpDir, "styles-*.css", validCSSContent)
-
-	emailTemplate, err := NewEmailTemplate(filepath.Dir(validTemplateFile),
-		filepath.Base(validTemplateFile), validCSSFile, "http://golang.samba.br")
-	if err != nil {
-		t.Fatalf("Failed to create EmailTemplate: %v", err)
-	}
+	validHeaderContent := "<div class='header'>Header</div>"
+	validFooterContent := "<div class='footer'>Footer</div>"
+	validBodyContent := "<p>Hello, {{.Data.Name}}!</p>"
+	validCssContent := "body { color: red; }"
 
 	tests := map[string]struct {
+		setupFunc   func(tmpDir, bodyDir string)
 		data        map[string]string
 		expected    string
 		expectError bool
 	}{
 		"Valid Template and Data": {
-			map[string]string{"Name": "Renê Cardozo"},
-			"Hello, Renê Cardozo!",
-			false,
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "header.html", validHeaderContent)
+				createTempFile(t, tmpDir, "footer.html", validFooterContent)
+				createTempFile(t, bodyDir, "body1.html", validBodyContent)
+				createTempFile(t, tmpDir, "styles.css", validCssContent)
+			},
+			data:        map[string]string{"Name": "Renê Cardozo"},
+			expected:    "<div class='header'>Header</div><p>Hello, Renê Cardozo!</p><div class='footer'>Footer</div>",
+			expectError: false,
+		},
+		"Missing Header File": {
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "footer.html", validFooterContent)
+				createTempFile(t, bodyDir, "body1.html", validBodyContent)
+				createTempFile(t, tmpDir, "styles.css", validCssContent)
+			},
+			data:        map[string]string{"Name": "Renê Cardozo"},
+			expected:    "",
+			expectError: true,
+		},
+		"Missing Footer File": {
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "header.html", validHeaderContent)
+				createTempFile(t, bodyDir, "body1.html", validBodyContent)
+				createTempFile(t, tmpDir, "styles.css", validCssContent)
+			},
+			data:        map[string]string{"Name": "Renê Cardozo"},
+			expected:    "",
+			expectError: true,
+		},
+		"Missing Body File": {
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "header.html", validHeaderContent)
+				createTempFile(t, tmpDir, "footer.html", validFooterContent)
+				createTempFile(t, tmpDir, "styles.css", validCssContent)
+			},
+			data:        map[string]string{"Name": "Renê Cardozo"},
+			expected:    "",
+			expectError: true,
+		},
+		"Missing CSS File": {
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "header.html", validHeaderContent)
+				createTempFile(t, tmpDir, "footer.html", validFooterContent)
+				createTempFile(t, bodyDir, "body1.html", validBodyContent)
+			},
+			data:        map[string]string{"Name": "Renê Cardozo"},
+			expected:    "<div class='header'>Header</div><p>Hello, Renê Cardozo!</p><div class='footer'>Footer</div>",
+			expectError: false, // Only logs a warning, should not fail completely
+		},
+		"Invalid Template Data": {
+			setupFunc: func(tmpDir, bodyDir string) {
+				createTempFile(t, tmpDir, "header.html", validHeaderContent)
+				createTempFile(t, tmpDir, "footer.html", validFooterContent)
+				createTempFile(t, bodyDir, "body1.html", validBodyContent)
+				createTempFile(t, tmpDir, "styles.css", validCssContent)
+			},
+			data:        map[string]string{},
+			expected:    "<div class='header'>Header</div><p>Hello, !</p><div class='footer'>Footer</div>",
+			expectError: false,
 		},
 	}
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			bodyDir := filepath.Join(tmpDir, "bodies")
+			os.Mkdir(bodyDir, 0755)
+
+			tt.setupFunc(tmpDir, bodyDir)
+
+			emailTemplate, err := NewEmailTemplate(tmpDir, "bodies/body1.html", "http://golang.samba.br")
+			if err != nil && !tt.expectError {
+				t.Fatalf("Failed to create EmailTemplate: %v", err)
+			}
+			if err == nil && tt.expectError {
+				t.Fatalf("Expected error but got none")
+			}
+			if tt.expectError {
+				return
+			}
+
 			result, err := emailTemplate.Execute(tt.data)
 			if (err != nil) != tt.expectError {
 				t.Errorf("Execute() error = %v, expectError %v", err, tt.expectError)
