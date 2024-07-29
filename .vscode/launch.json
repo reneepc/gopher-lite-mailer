@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Aprovados",
+      "name": "Aprovados - Workshop Iniciantes",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -20,7 +20,7 @@
       "postDebugTask": ""
     },
     {
-      "name": "Reprovados",
+      "name": "Reprovados - Workshop Iniciantes",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -36,6 +36,24 @@
       "buildFlags": "",
       "preLaunchTask": "",
       "postDebugTask": ""
-    }
+    },
+    {
+      "name": "Cupons Globoplay",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "-dir=standard",
+        "-body=coupon-globoplay.html",
+        "-subject=Cupom Globoplay pela Golang SP!",
+        "${env:GMAIL}",
+        "${env:APP_PASS}"
+      ],
+      "env": {},
+      "buildFlags": "",
+      "preLaunchTask": "",
+      "postDebugTask": ""
+    },   
   ]
 }
