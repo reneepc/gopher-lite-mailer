@@ -20,6 +20,42 @@
       "postDebugTask": ""
     },
     {
+      "name": "Lembrete - Workshop Iniciantes",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "-dir=standard",
+        "-body=workshop-reminder.html",
+        "-subject=📅 Lembrete: Workshop de Golang para Iniciantes",
+        "${env:GMAIL}",
+        "${env:APP_PASS}"
+      ],
+      "env": {},
+      "buildFlags": "",
+      "preLaunchTask": "",
+      "postDebugTask": ""
+    },
+    {
+      "name": "Lembrete Final - Workshop Iniciantes",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "-dir=standard",
+        "-body=workshop-reminder-final.html",
+        "-subject=📅 Lembrete Final: Workshop de Golang para Iniciantes",
+        "${env:GMAIL}",
+        "${env:APP_PASS}"
+      ],
+      "env": {},
+      "buildFlags": "",
+      "preLaunchTask": "",
+      "postDebugTask": ""
+    },
+    {
       "name": "Reprovados - Workshop Iniciantes",
       "type": "go",
       "request": "launch",
