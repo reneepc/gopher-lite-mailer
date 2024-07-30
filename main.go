@@ -1,9 +1,9 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log/slog"
-	"math/rand/v2"
 	"os"
 	"path"
 	"sync"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/reneepc/gopher-lite-mailer/mailer"
 	"github.com/reneepc/gopher-lite-mailer/parser"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -54,12 +55,18 @@ func main() {
 
 func sendEmails(mailer mailer.Mailer, subject string, template mailer.EmailTemplate, records []parser.MailRecord) {
 	var wg sync.WaitGroup
+	limiter := rate.NewLimiter(rate.Every(2*time.Second), 5)
 
 	for _, mailRecord := range records {
 		wg.Add(1)
 		go func(record parser.MailRecord) {
-			time.Sleep(time.Duration(rand.IntN(30)) * time.Second)
 			defer wg.Done()
+
+			err := limiter.Wait(context.Background())
+			if err != nil {
+				slog.Error("could not wait for rate limiter: %v", slog.Any("error", err))
+				return
+			}
 
 			body, err := template.Execute(record.Data)
 			if err != nil {
@@ -69,7 +76,9 @@ func sendEmails(mailer mailer.Mailer, subject string, template mailer.EmailTempl
 
 			err = mailer.SendMail(record.Email, subject, body)
 			if err != nil {
-				slog.Error("could not send email to %s: %v", slog.String("email", record.Email), slog.Any("error", err))
+				slog.Error("❌ Could not send email", slog.String("email", record.Email), slog.Any("error", err))
+			} else {
+				slog.Info("✅ Email successfully sent", slog.String("email", record.Email))
 			}
 		}(mailRecord)
 	}
